@@ -220,7 +220,7 @@ async fn main() -> Result<(), ()> {
                 .function_call(ChatCompletionFunctionCall::Object(
                     json!({ "name": "commit" }),
                 ))
-                .model("gpt-3.5-turbo")
+                .model("gpt-3.5-turbo-16k")
                 .temperature(0.0)
                 .max_tokens(2000u16)
                 .build()
