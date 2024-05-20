@@ -82,6 +82,20 @@ async fn main() -> Result<(), ()> {
         .expect("Couldn't find diff.")
         .stdout;
 
+    let mut open_ai_config = OpenAIConfig::new();
+    open_ai_config = open_ai_config.with_api_key(api_token);
+
+    let base_option = match std::env::var("OPENAI_API_BASE") {
+        Ok(val) => Some(val),
+        Err(_) => None
+    };
+    if base_option.is_some() {
+        open_ai_config = open_ai_config.with_api_base(base_option.unwrap());
+    }
+
+    let open_ai_config = open_ai_config;
+
+
     let git_staged_cmd = str::from_utf8(&git_staged_cmd).unwrap();
 
     if git_staged_cmd.is_empty() {
@@ -100,7 +114,7 @@ async fn main() -> Result<(), ()> {
         std::process::exit(1);
     }
 
-    let client = async_openai::Client::with_config(OpenAIConfig::new().with_api_key(api_token));
+    let client = async_openai::Client::with_config(open_ai_config);
 
     let output = Command::new("git")
         .arg("diff")
@@ -163,7 +177,7 @@ async fn main() -> Result<(), ()> {
                     ChatCompletionRequestMessage {
                         role: Role::System,
                         content: Some(
-                            "You are an experienced programmer who writes great commit messages."
+                            "你是一个专业的程序员，将使用约定式提交编写专业的提交信息，你最终给出的提交信息应该是中文的。"
                                 .to_string(),
                         ),
                         ..Default::default()
